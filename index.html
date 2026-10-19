@@ -250,12 +250,12 @@
         white-space: nowrap;
       }
 
-      .disk-container {
+      .files-container {
         flex: 1;
         padding: 10px 40px;
         overflow-y: auto;
       }
-      .disk-grid {
+      .files-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 20px;
@@ -375,8 +375,8 @@
           style="display: none"
           onchange="
             document.getElementById('file-name-display').innerText = this
-              .disk[0]
-              ? this.disk[0].name
+              .files[0]
+              ? this.files[0].name
               : 'Файл не выбран'
           "
         />
@@ -435,8 +435,8 @@
             <span id="status" style="font-size: 13px; font-weight: bold"></span>
           </div>
         </div>
-        <div class="disk-container">
-          <div id="file-list" class="disk-grid"></div>
+        <div class="files-container">
+          <div id="file-list" class="files-grid"></div>
         </div>
       </div>
     </div>
@@ -463,81 +463,56 @@
       const deleteIcon =
         '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
 
-      function cleanName(name) {
-        const map = {
-          а: "a",
-          б: "b",
-          в: "v",
-          г: "g",
-          д: "d",
-          е: "e",
-          ё: "e",
-          ж: "zh",
-          з: "z",
-          и: "i",
-          й: "y",
-          к: "k",
-          л: "l",
-          м: "m",
-          н: "n",
-          о: "o",
-          п: "p",
-          р: "r",
-          с: "s",
-          т: "t",
-          у: "u",
-          ф: "f",
-          х: "h",
-          ц: "ts",
-          ч: "ch",
-          ш: "sh",
-          щ: "sch",
-          ъ: "",
-          ы: "y",
-          ь: "",
-          э: "e",
-          ю: "yu",
-          я: "ya",
-          А: "A",
-          Б: "B",
-          В: "V",
-          Г: "G",
-          Д: "D",
-          Е: "E",
-          Ё: "E",
-          Ж: "Zh",
-          З: "Z",
-          И: "I",
-          Й: "Y",
-          К: "K",
-          Л: "L",
-          М: "M",
-          Н: "N",
-          О: "O",
-          П: "P",
-          Р: "R",
-          С: "S",
-          Т: "T",
-          У: "U",
-          Ф: "F",
-          Х: "H",
-          Ц: "Ts",
-          Ч: "Ch",
-          Ш: "Sh",
-          Щ: "Sch",
-          Ъ: "",
-          Ы: "Y",
-          Ь: "",
-          Э: "E",
-          Ю: "Yu",
-          Я: "Ya",
-        };
-        return name
-          .split("")
-          .map((char) => map[char] || char)
-          .join("")
-          .replace(/\s+/g, "_")
-          .replace(/[^a-zA-Z0-9.-]/g, "");
+      // ПЕРЕВОДЧИК ОШИБОК
+      function translateError(msg) {
+        if (msg.includes("row-level security policy"))
+          return "Нет прав на создание. Проверьте правила в базе.";
+        if (msg.includes("Invalid key")) return "Недопустимое имя файла.";
+        if (msg.includes("already exists"))
+          return "Такая папка или файл уже существуют.";
+        if (msg.includes("Failed to fetch")) return "Проблема с интернетом.";
+        return msg;
+      }
+
+      // ШИФРОВАНИЕ
+      function encodeName(str) {
+        const bytes = new TextEncoder().encode(str);
+        const binString = Array.from(bytes, (byte) =>
+          String.fromCodePoint(byte),
+        ).join("");
+        return btoa(binString)
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=/g, ".");
+      }
+      function decodeName(str) {
+        try {
+          const base64 = str
+            .replace(/-/g, "+")
+            .replace(/_/g, "/")
+            .replace(/\./g, "=");
+          const binString = atob(base64);
+          const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
+          return new TextDecoder().decode(bytes);
+        } catch (e) {
+          return str;
+        }
+      }
+      function encodeFile(fileName) {
+        const parts = fileName.split(".");
+        if (parts.length > 1) {
+          const ext = parts.pop();
+          return encodeName(parts.join(".")) + "." + ext;
+        }
+        return encodeName(fileName);
+      }
+      function decodeFile(fileName) {
+        const parts = fileName.split(".");
+        if (parts.length > 1) {
+          const ext = parts.pop();
+          return decodeName(parts.join(".")) + "." + ext;
+        }
+        return decodeName(fileName);
       }
 
       function togglePassword() {
@@ -601,7 +576,8 @@
             email,
             password,
           });
-          if (error) msgEl.textContent = "Ошибка: " + error.message;
+          if (error)
+            msgEl.textContent = "Ошибка: " + translateError(error.message);
           else {
             const { data: loginData } =
               await supabaseClient.auth.signInWithPassword({ email, password });
@@ -635,7 +611,7 @@
         document.getElementById("tab-shared").className =
           tab === "shared" ? "nav-btn active" : "nav-btn";
         updateBreadcrumbs();
-        loaddisk();
+        loadFiles();
       }
 
       function updateBreadcrumbs() {
@@ -649,7 +625,7 @@
         rootLink.onclick = () => {
           currentPath = "";
           updateBreadcrumbs();
-          loaddisk();
+          loadFiles();
         };
         bc.appendChild(rootLink);
 
@@ -659,7 +635,7 @@
           sep.innerHTML = "&rsaquo;";
           bc.appendChild(sep);
           const curr = document.createElement("span");
-          curr.textContent = currentPath.split("/").pop().replace(/_/g, " ");
+          curr.textContent = decodeName(currentPath.split("/").pop());
           bc.appendChild(curr);
         }
       }
@@ -672,25 +648,25 @@
         statusEl.style.color = "#007bff";
         statusEl.textContent = "Создание...";
 
-        const safeName = cleanName(folderName.trim());
+        const safeName = encodeName(folderName.trim());
         const basePath = currentFolder === "my" ? currentUser.id : "shared";
         const fullPath = currentPath
           ? `${basePath}/${currentPath}/${safeName}`
           : `${basePath}/${safeName}`;
 
         const { error } = await supabaseClient.storage
-          .from("disk")
+          .from("disk") // ИСПОЛЬЗУЕМ НОВЫЙ БАКЕТ 'disk'
           .upload(`${fullPath}/.emptyFolderPlaceholder`, new Blob([""]), {
             upsert: true,
           });
 
         if (error) {
           statusEl.style.color = "#d93025";
-          statusEl.textContent = "Ошибка: " + error.message;
+          statusEl.textContent = "Ошибка: " + translateError(error.message);
         } else {
           statusEl.style.color = "#008000";
           statusEl.textContent = "Папка создана!";
-          loaddisk();
+          loadFiles();
           setTimeout(() => (statusEl.textContent = ""), 3000);
         }
       }
@@ -702,11 +678,11 @@
         const { error } = await supabaseClient.storage
           .from("disk")
           .remove(pathsToRemove);
-        if (error) alert("Ошибка: " + error.message);
-        else loaddisk();
+        if (error) alert("Ошибка: " + translateError(error.message));
+        else loadFiles();
       }
 
-      async function loaddisk() {
+      async function loadFiles() {
         const fileListEl = document.getElementById("file-list");
         fileListEl.innerHTML = '<p style="color:#888;">Загрузка...</p>';
 
@@ -718,16 +694,18 @@
 
         if (error) {
           fileListEl.innerHTML =
-            '<p class="error">Ошибка: ' + error.message + "</p>";
+            '<p class="error">Ошибка: ' +
+            translateError(error.message) +
+            "</p>";
           return;
         }
         fileListEl.innerHTML = "";
         const folders = data.filter(
           (f) => f.id === null && f.name !== ".emptyFolderPlaceholder",
         );
-        const disk = data.filter((f) => f.id !== null);
+        const files = data.filter((f) => f.id !== null);
 
-        if (folders.length === 0 && disk.length === 0) {
+        if (folders.length === 0 && files.length === 0) {
           fileListEl.innerHTML =
             '<p class="empty-state">Здесь пусто. Загрузите файл или создайте папку.</p>';
           return;
@@ -743,17 +721,17 @@
           div.onclick = () => {
             currentPath = currentFolderPath;
             updateBreadcrumbs();
-            loaddisk();
+            loadFiles();
           };
           div.innerHTML = `
                 <button class="delete-btn" title="Удалить папку" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', true)">${deleteIcon}</button>
                 <div class="grid-icon folder-icon"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
-                <span class="grid-name">${folder.name.replace(/_/g, " ")}</span>
+                <span class="grid-name">${decodeName(folder.name)}</span>
             `;
           fileListEl.appendChild(div);
         });
 
-        disk.forEach((file) => {
+        files.forEach((file) => {
           const div = document.createElement("div");
           div.className = "grid-item";
           const { data: urlData } = supabaseClient.storage
@@ -765,7 +743,7 @@
           div.innerHTML = `
                 <button class="delete-btn" title="Удалить файл" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', false)">${deleteIcon}</button>
                 <div class="grid-icon file-icon"><svg viewBox="0 0 24 24">${iconSvg}</svg></div>
-                <span class="grid-name">${file.name.replace(/_/g, " ")}</span>
+                <span class="grid-name">${decodeFile(file.name)}</span>
             `;
           div.onclick = () => window.open(urlData.publicUrl, "_blank");
           fileListEl.appendChild(div);
@@ -774,21 +752,36 @@
 
       async function uploadFile() {
         const fileInput = document.getElementById("file-input");
-        if (!fileInput.disk || fileInput.disk.length === 0)
-          return alert("Выберите файл!");
-        const file = fileInput.disk[0];
-        const safeFileName = cleanName(file.name);
+        const statusEl = document.getElementById("status");
+        if (!fileInput.files || fileInput.files.length === 0) {
+          statusEl.style.color = "#d93025";
+          statusEl.textContent = "Выберите файл!";
+          return;
+        }
+        const file = fileInput.files[0];
+        statusEl.style.color = "#007bff";
+        statusEl.textContent = "Загрузка...";
+
+        const safeFileName = encodeFile(file.name);
         const basePath = currentFolder === "my" ? currentUser.id : "shared";
         const fullPath = currentPath ? `${basePath}/${currentPath}` : basePath;
+
         const { error } = await supabaseClient.storage
           .from("disk")
           .upload(`${fullPath}/${safeFileName}`, file, { upsert: true });
+
         if (!error) {
+          statusEl.style.color = "#008000";
+          statusEl.textContent = "Загружено!";
           fileInput.value = "";
           document.getElementById("file-name-display").innerText =
             "Файл не выбран";
-          loaddisk();
-        } else alert(error.message);
+          loadFiles();
+          setTimeout(() => (statusEl.textContent = ""), 3000);
+        } else {
+          statusEl.style.color = "#d93025";
+          statusEl.textContent = "Ошибка: " + translateError(error.message);
+        }
       }
 
       supabaseClient.auth.getSession().then(({ data: { session } }) => {

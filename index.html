@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Мой Диск</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      body {
+        background: #ffffff;
+        color: #000;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ===== ЭКРАН ВХОДА ===== */
+      #auth-screen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f9f9f9;
+      }
+      .login-box {
+        width: 100%;
+        max-width: 380px;
+        padding: 40px;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        text-align: center;
+      }
+      .login-box h1 {
+        margin-bottom: 24px;
+        font-size: 22px;
+        font-weight: bold;
+      }
+      .input-group {
+        position: relative;
+        margin-bottom: 16px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s;
+      }
+      .input-group input:focus {
+        border-color: #fc0;
+      }
+      .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 14px;
+        cursor: pointer;
+        color: #999;
+        width: 20px;
+        height: 20px;
+      }
+      .toggle-password svg {
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
+      }
+      .btn-yellow {
+        width: 100%;
+        padding: 12px;
+        background: #ffdb4d;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #000;
+        transition: 0.2s;
+        margin-top: 8px;
+      }
+      .btn-yellow:hover {
+        background: #ffcc00;
+      }
+      .error {
+        color: #d93025;
+        font-size: 13px;
+        margin-top: 12px;
+      }
+      .switch-link {
+        display: block;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #007bff;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      /* ===== ЭКРАН ДИСКА ===== */
+      .hidden {
+        display: none !important;
+      }
+      #disk-screen {
+        display: flex;
+        height: 100vh;
+      }
+
+      /* --- Боковая панель --- */
+      .sidebar {
+        width: 240px;
+        background: #f9f9f9;
+        padding: 20px 12px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #eaeaea;
+      }
+      .logo {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding-left: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .logo svg {
+        width: 24px;
+        height: 24px;
+        fill: #000;
+      }
+
+      .btn-upload-main {
+        width: 100%;
+        padding: 12px;
+        background: #ffdb4d;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        margin-bottom: 8px;
+      }
+      .btn-upload-main:hover {
+        background: #ffcc00;
+      }
+      .btn-upload-main svg {
+        width: 18px;
+        height: 18px;
+        fill: #000;
+      }
+
+      .btn-create-folder {
+        width: 100%;
+        padding: 12px;
+        background: #e6e6e6;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        margin-bottom: 20px;
+      }
+      .btn-create-folder:hover {
+        background: #d9d9d9;
+      }
+
+      .nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        color: #333;
+        transition: 0.2s;
+        text-align: left;
+      }
+      .nav-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: #666;
+      }
+      .nav-btn:hover {
+        background: #ebebeb;
+      }
+      .nav-btn.active {
+        background: #e6e6e6;
+        color: #000;
+        font-weight: bold;
+      }
+      .nav-btn.active svg {
+        fill: #000;
+      }
+
+      .storage-info {
+        margin-top: auto;
+        padding: 15px;
+        background: #fff;
+        border-radius: 12px;
+        font-size: 12px;
+        color: #666;
+        border: 1px solid #eaeaea;
+      }
+      .storage-bar {
+        height: 4px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        margin-top: 8px;
+        overflow: hidden;
+      }
+      .storage-fill {
+        height: 100%;
+        width: 10%;
+        background: #fc0;
+      }
+
+      .btn-logout {
+        margin-top: 15px;
+        padding: 10px;
+        background: transparent;
+        border: none;
+        color: #d93025;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: left;
+        padding-left: 12px;
+      }
+      .btn-logout:hover {
+        text-decoration: underline;
+      }
+
+      /* --- Главная область --- */
+      .main-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+      }
+      .top-bar {
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .breadcrumbs {
+        font-size: 22px;
+        font-weight: bold;
+        color: #000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .breadcrumb-item {
+        cursor: pointer;
+        color: #000;
+        text-decoration: none;
+      }
+      .breadcrumb-item:hover {
+        color: #007bff;
+      }
+      .breadcrumb-sep {
+        color: #ccc;
+        font-size: 20px;
+      }
+
+      /* Сообщение о загрузке */
+      #status {
+        font-size: 13px;
+        font-weight: bold;
+        margin-left: 20px;
+      }
+
+      /* --- Сетка файлов --- */
+      .files-container {
+        flex: 1;
+        padding: 20px 30px;
+        overflow-y: auto;
+      }
+      .files-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 20px;
+      }
+
+      .grid-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+        text-decoration: none;
+        color: #000;
+      }
+      .grid-item:hover {
+        background: #f4f4f4;
+      }
+
+      .grid-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 12px;
+      }
+      .grid-icon svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .folder-icon svg {
+        fill: #ffdb4d;
+      }
+      .file-icon svg {
+        fill: #999;
+      }
+
+      .grid-name {
+        font-size: 13px;
+        text-align: center;
+        word-break: break-word;
+        line-height: 1.3;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ЭКРАН ВХОДА -->
+    <div id="auth-screen">
+      <div class="login-box">
+        <h1 id="auth-title">Вход в Мой Диск</h1>
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Введите email" />
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Введите пароль" />
+          <span class="toggle-password" onclick="togglePassword()">
+            <svg id="eye-icon" viewBox="0 0 24 24">
+              <path
+                d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+              />
+            </svg>
+          </span>
+        </div>
+        <div class="input-group hidden" id="confirm-password-group">
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Повторите пароль"
+          />
+        </div>
+        <button class="btn-yellow" id="auth-btn" onclick="handleAuth()">
+          Авторизоваться
+        </button>
+        <p id="auth-msg" class="error"></p>
+        <a class="switch-link" id="switch-mode" onclick="toggleMode()"
+          >Нет аккаунта? Зарегистрироваться</a
+        >
+      </div>
+    </div>
+
+    <!-- ЭКРАН ДИСКА -->
+    <div id="disk-screen" class="hidden">
+      <!-- Левая панель -->
+      <div class="sidebar">
+        <div class="logo">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"
+            />
+          </svg>
+          Мой Диск
+        </div>
+
+        <!-- Кнопки как в Яндексе -->
+        <input
+          type="file"
+          id="file-input"
+          style="display: none"
+          onchange="
+            document.getElementById('file-name-display').innerText = this
+              .files[0]
+              ? this.files[0].name
+              : 'Файл не выбран'
+          "
+        />
+        <button
+          class="btn-upload-main"
+          onclick="document.getElementById('file-input').click()"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+          </svg>
+          Загрузить
+        </button>
+        <button class="btn-create-folder" onclick="createFolder()">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z"
+            />
+          </svg>
+          Создать папку
+        </button>
+
+        <div class="nav-menu">
+          <button id="tab-my" class="nav-btn active" onclick="switchTab('my')">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+              />
+            </svg>
+            Мои файлы
+          </button>
+          <button id="tab-shared" class="nav-btn" onclick="switchTab('shared')">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"
+              />
+            </svg>
+            Для группы
+          </button>
+        </div>
+
+        <div class="storage-info">
+          Занято 1 ГБ из 1 ГБ
+          <div class="storage-bar"><div class="storage-fill"></div></div>
+        </div>
+
+        <button class="btn-logout" onclick="logout()">Выйти</button>
+      </div>
+
+      <!-- Основная зона -->
+      <div class="main-area">
+        <div class="top-bar">
+          <!-- Хлебные крошки -->
+          <div class="breadcrumbs" id="breadcrumbs"></div>
+          <div>
+            <span
+              id="file-name-display"
+              style="color: #666; font-size: 13px; margin-right: 15px"
+              >Файл не выбран</span
+            >
+            <button
+              class="btn-yellow"
+              style="width: auto; padding: 8px 20px; margin: 0"
+              onclick="uploadFile()"
+            >
+              Загрузить файл
+            </button>
+            <span id="status"></span>
+          </div>
+        </div>
+
+        <div class="files-container">
+          <div id="file-list" class="files-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ВСТАВЬ СЮДА СВОИ КЛЮЧИ!
+      const SUPABASE_URL = "https://jjjruysmbldsgclotcbd.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqanJ1eXNtYmxkc2djbG90Y2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MDA0NzksImV4cCI6MjEwNzk3NjQ3OX0.FFct-z_7ledyf3IwtDUjB-hIbvE9MN2zhuTJfmU8BIU";
+
+      const supabaseClient = supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+      let currentUser = null;
+      let isLoginMode = true;
+      let currentFolder = "my";
+      let currentPath = "";
+
+      const eyeOpen =
+        '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+      const eyeClosed =
+        '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+
+      function togglePassword() {
+        const p = document.getElementById("password");
+        const icon = document.getElementById("eye-icon");
+        if (p.type === "password") {
+          p.type = "text";
+          icon.innerHTML = eyeClosed;
+        } else {
+          p.type = "password";
+          icon.innerHTML = eyeOpen;
+        }
+      }
+
+      function toggleMode() {
+        isLoginMode = !isLoginMode;
+        document.getElementById("auth-title").textContent = isLoginMode
+          ? "Вход в Мой Диск"
+          : "Регистрация";
+        document.getElementById("auth-btn").textContent = isLoginMode
+          ? "Авторизоваться"
+          : "Создать аккаунт";
+        document.getElementById("switch-mode").textContent = isLoginMode
+          ? "Нет аккаунта? Зарегистрироваться"
+          : "Уже есть аккаунт? Войти";
+        document.getElementById("auth-msg").textContent = "";
+        document
+          .getElementById("confirm-password-group")
+          .classList.toggle("hidden", isLoginMode);
+      }
+
+      async function handleAuth() {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirm-password").value;
+        const msgEl = document.getElementById("auth-msg");
+        msgEl.textContent = "";
+        msgEl.className = "error";
+
+        if (!email || !password) {
+          msgEl.textContent = "Заполните все поля!";
+          return;
+        }
+
+        if (isLoginMode) {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (error) msgEl.textContent = "Неверный email или пароль";
+          else {
+            currentUser = data.user;
+            showDisk();
+          }
+        } else {
+          if (password !== confirm) {
+            msgEl.textContent = "Пароли не совпадают!";
+            return;
+          }
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+          });
+          if (error) msgEl.textContent = "Ошибка: " + error.message;
+          else {
+            const { data: loginData } =
+              await supabaseClient.auth.signInWithPassword({ email, password });
+            if (loginData.user) {
+              currentUser = loginData.user;
+              showDisk();
+            }
+          }
+        }
+      }
+
+      async function logout() {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        currentPath = "";
+        document.getElementById("auth-screen").classList.remove("hidden");
+        document.getElementById("disk-screen").classList.add("hidden");
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+      }
+
+      function showDisk() {
+        document.getElementById("auth-screen").classList.add("hidden");
+        document.getElementById("disk-screen").classList.remove("hidden");
+        switchTab("my");
+      }
+
+      function switchTab(tab) {
+        currentFolder = tab;
+        currentPath = "";
+        document.getElementById("tab-my").className =
+          tab === "my" ? "nav-btn active" : "nav-btn";
+        document.getElementById("tab-shared").className =
+          tab === "shared" ? "nav-btn active" : "nav-btn";
+        updateBreadcrumbs();
+        loadFiles();
+      }
+
+      function updateBreadcrumbs() {
+        const bc = document.getElementById("breadcrumbs");
+        bc.innerHTML = "";
+
+        const rootLink = document.createElement("span");
+        rootLink.className = "breadcrumb-item";
+        rootLink.textContent =
+          currentFolder === "my" ? "Мои файлы" : "Для группы";
+        rootLink.onclick = () => {
+          currentPath = "";
+          updateBreadcrumbs();
+          loadFiles();
+        };
+        bc.appendChild(rootLink);
+
+        if (currentPath) {
+          const sep = document.createElement("span");
+          sep.className = "breadcrumb-sep";
+          sep.innerHTML = "&rsaquo;";
+          bc.appendChild(sep);
+          const curr = document.createElement("span");
+          curr.textContent = currentPath;
+          bc.appendChild(curr);
+        }
+      }
+
+      async function createFolder() {
+        const folderName = prompt(
+          "Название папки (например: Компьютерные сети):",
+        );
+        if (!folderName || folderName.trim() === "") return;
+
+        const statusEl = document.getElementById("status");
+        statusEl.style.color = "#007bff";
+        statusEl.textContent = "Создание...";
+
+        const translitMap = {
+          а: "a",
+          б: "b",
+          в: "v",
+          г: "g",
+          д: "d",
+          е: "e",
+          ё: "e",
+          ж: "zh",
+          з: "z",
+          и: "i",
+          й: "y",
+          к: "k",
+          л: "l",
+          м: "m",
+          н: "n",
+          о: "o",
+          п: "p",
+          р: "r",
+          с: "s",
+          т: "t",
+          у: "u",
+          ф: "f",
+          х: "h",
+          ц: "ts",
+          ч: "ch",
+          ш: "sh",
+          щ: "sch",
+          ъ: "",
+          ы: "y",
+          ь: "",
+          э: "e",
+          ю: "yu",
+          я: "ya",
+          А: "A",
+          Б: "B",
+          В: "V",
+          Г: "G",
+          Д: "D",
+          Е: "E",
+          Ё: "E",
+          Ж: "Zh",
+          З: "Z",
+          И: "I",
+          Й: "Y",
+          К: "K",
+          Л: "L",
+          М: "M",
+          Н: "N",
+          О: "O",
+          П: "P",
+          Р: "R",
+          С: "S",
+          Т: "T",
+          У: "U",
+          Ф: "F",
+          Х: "H",
+          Ц: "Ts",
+          Ч: "Ch",
+          Ш: "Sh",
+          Щ: "Sch",
+          Ъ: "",
+          Ы: "Y",
+          Ь: "",
+          Э: "E",
+          Ю: "Yu",
+          Я: "Ya",
+        };
+
+        const safeName = folderName
+          .trim()
+          .split("")
+          .map((char) => translitMap[char] || char)
+          .join("")
+          .replace(/\s+/g, "_")
+          .replace(/[^a-zA-Z0-9_-]/g, "");
+
+        const basePath = currentFolder === "my" ? currentUser.id : "shared";
+        const fullPath = currentPath
+          ? `${basePath}/${currentPath}/${safeName}`
+          : `${basePath}/${safeName}`;
+
+        const { error } = await supabaseClient.storage
+          .from("files")
+          .upload(`${fullPath}/.emptyFolderPlaceholder`, new Blob([""]), {
+            upsert: true,
+          });
+
+        if (error) {
+          statusEl.style.color = "#d93025";
+          statusEl.textContent = "Ошибка: " + error.message;
+        } else {
+          statusEl.style.color = "#008000";
+          statusEl.textContent = "Папка создана!";
+          loadFiles();
+          setTimeout(() => (statusEl.textContent = ""), 3000);
+        }
+      }
+
+      async function loadFiles() {
+        const fileListEl = document.getElementById("file-list");
+        fileListEl.innerHTML = '<p style="color:#888;">Загрузка...</p>';
+
+        const basePath = currentFolder === "my" ? currentUser.id : "shared";
+        const fullPath = currentPath ? `${basePath}/${currentPath}` : basePath;
+
+        const { data, error } = await supabaseClient.storage
+          .from("files")
+          .list(fullPath);
+
+        if (error) {
+          fileListEl.innerHTML =
+            '<p class="error">Ошибка: ' + error.message + "</p>";
+          return;
+        }
+
+        fileListEl.innerHTML = "";
+
+        const folders = data.filter(
+          (f) => f.id === null && f.name !== ".emptyFolderPlaceholder",
+        );
+        const files = data.filter((f) => f.id !== null);
+
+        if (folders.length === 0 && files.length === 0) {
+          fileListEl.innerHTML =
+            '<p style="color:#888; margin-top:20px;">Здесь пусто. Загрузите файл или создайте папку.</p>';
+          return;
+        }
+
+        // Отрисовка папок
+        folders.forEach((folder) => {
+          const div = document.createElement("div");
+          div.className = "grid-item";
+          div.onclick = () => {
+            currentPath = currentPath
+              ? `${currentPath}/${folder.name}`
+              : folder.name;
+            updateBreadcrumbs();
+            loadFiles();
+          };
+
+          // Желтая папка SVG
+          div.innerHTML = `
+                <div class="grid-icon folder-icon"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+                <span class="grid-name">${folder.name.replace(/_/g, " ")}</span>
+            `;
+          fileListEl.appendChild(div);
+        });
+
+        // Отрисовка файлов
+        files.forEach((file) => {
+          const div = document.createElement("div");
+          div.className = "grid-item";
+          const { data: urlData } = supabaseClient.storage
+            .from("files")
+            .getPublicUrl(`${fullPath}/${file.name}`);
+
+          let iconSvg =
+            '<path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>'; // Документ
+          if (file.name.match(/\.(jpg|jpeg|png|gif)$/i))
+            iconSvg =
+              '<path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>'; // Картинка
+          if (file.name.match(/\.(mp4|mov|avi|mkv)$/i))
+            iconSvg =
+              '<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>'; // Видео
+
+          div.innerHTML = `
+                <div class="grid-icon file-icon"><svg viewBox="0 0 24 24">${iconSvg}</svg></div>
+                <span class="grid-name">${file.name}</span>
+            `;
+          div.onclick = () => window.open(urlData.publicUrl, "_blank");
+          fileListEl.appendChild(div);
+        });
+      }
+
+      async function uploadFile() {
+        const fileInput = document.getElementById("file-input");
+        const statusEl = document.getElementById("status");
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+          statusEl.style.color = "#d93025";
+          statusEl.textContent = "Выберите файл!";
+          return;
+        }
+
+        const file = fileInput.files[0];
+        statusEl.style.color = "#007bff";
+        statusEl.textContent = "Загрузка...";
+
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const basePath = currentFolder === "my" ? currentUser.id : "shared";
+        const fullPath = currentPath ? `${basePath}/${currentPath}` : basePath;
+
+        const { data, error } = await supabaseClient.storage
+          .from("files")
+          .upload(`${fullPath}/${sanitizedFileName}`, file, { upsert: true });
+
+        if (error) {
+          statusEl.style.color = "#d93025";
+          statusEl.textContent = "Ошибка: " + error.message;
+        } else {
+          statusEl.style.color = "#008000";
+          statusEl.textContent = "Загружено!";
+          fileInput.value = "";
+          document.getElementById("file-name-display").innerText =
+            "Файл не выбран";
+          loadFiles();
+          setTimeout(() => (statusEl.textContent = ""), 3000);
+        }
+      }
+
+      supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          currentUser = session.user;
+          showDisk();
+        }
+      });
+    </script>
+  </body>
+</html>

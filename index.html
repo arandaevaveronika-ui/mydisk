@@ -20,6 +20,7 @@
         overflow: hidden;
       }
 
+      /* Экран входа */
       #auth-screen {
         display: flex;
         justify-content: center;
@@ -98,6 +99,7 @@
         cursor: pointer;
       }
 
+      /* Экран диска */
       .hidden {
         display: none !important;
       }
@@ -106,6 +108,7 @@
         height: 100vh;
       }
 
+      /* Красивая левая панель */
       .sidebar {
         width: 260px;
         background: #f7f7f7;
@@ -264,6 +267,7 @@
         text-align: left;
       }
 
+      /* Главная зона */
       .main-area {
         flex: 1;
         display: flex;
@@ -407,12 +411,6 @@
         text-align: center;
         grid-column: 1 / -1;
       }
-      .placeholder-view svg {
-        width: 80px;
-        height: 80px;
-        fill: #ddd;
-        margin-bottom: 20px;
-      }
       .placeholder-view h2 {
         color: #333;
         margin-bottom: 10px;
@@ -455,9 +453,7 @@
 
     <div id="disk-screen" class="hidden">
       <div class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">Диск</div>
-        </div>
+        <div class="sidebar-header"><div class="logo">Диск</div></div>
 
         <input
           type="file"
@@ -498,6 +494,24 @@
                 d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
               /></svg
             >Общий доступ
+          </button>
+          <button id="nav-photos" class="nav-btn" onclick="switchTab('photos')">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+              /></svg
+            >Фото
+          </button>
+          <button
+            id="nav-storage"
+            class="nav-btn"
+            onclick="switchTab('storage')"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"
+              /></svg
+            >Управление местом
           </button>
         </div>
 
@@ -552,7 +566,6 @@
     </div>
 
     <script>
-      // ВСТАВЬ СЮДА СВОИ КЛЮЧИ ИЗ SUPABASE!
       const SUPABASE_URL = "https://jjjruysmbldsgclotcbd.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqanJ1eXNtYmxkc2djbG90Y2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MDA0NzksImV4cCI6MjEwNzk3NjQ3OX0.FFct-z_7ledyf3IwtDUjB-hIbvE9MN2zhuTJfmU8BIU";
@@ -562,7 +575,7 @@
         SUPABASE_ANON_KEY,
       );
       let currentUser = null;
-      let userRole = "student"; // По умолчанию все студенты
+      let userRole = "student";
       let isLoginMode = true;
       let currentFolder = "my";
       let currentPath = "";
@@ -581,7 +594,7 @@
         if (msg.includes("already exists"))
           return "Такая папка или файл уже существуют.";
         if (msg.includes("User already registered"))
-          return "Этот email уже зарегистрирован. Нажмите «Войти».";
+          return "Этот email уже зарегистрирован.";
         return msg;
       }
 
@@ -654,7 +667,6 @@
         const password = document.getElementById("password").value;
         const msgEl = document.getElementById("auth-msg");
         msgEl.textContent = "";
-
         if (!email || !password) {
           msgEl.textContent = "Заполните все поля!";
           return;
@@ -693,7 +705,7 @@
       }
 
       async function checkRoleAndShow() {
-        // Проверяем роль пользователя
+        // Получаем роль
         const { data } = await supabaseClient
           .from("user_roles")
           .select("role")
@@ -701,11 +713,11 @@
           .single();
         userRole = data?.role || "student";
 
-        // Если это учитель, добавляем ему кнопку "Все работы"
-        if (
-          userRole === "teacher" &&
-          !document.getElementById("nav-all-works")
-        ) {
+        // Восстанавливаем меню учителя, если он вышел и зашел обратно
+        const oldBtn = document.getElementById("nav-all-works");
+        if (oldBtn) oldBtn.remove();
+
+        if (userRole === "teacher") {
           const btn = document.createElement("button");
           btn.id = "nav-all-works";
           btn.className = "nav-btn";
@@ -729,8 +741,6 @@
         currentPath = "";
         document.getElementById("auth-screen").classList.remove("hidden");
         document.getElementById("disk-screen").classList.add("hidden");
-        if (document.getElementById("nav-all-works"))
-          document.getElementById("nav-all-works").remove();
       }
 
       function switchTab(tab) {
@@ -748,17 +758,16 @@
       function updateBreadcrumbs() {
         const bc = document.getElementById("breadcrumbs");
         bc.innerHTML = "";
-        const backBtn = document.getElementById("back-btn");
-        if (currentPath) {
-          backBtn.style.display = "flex";
-        } else {
-          backBtn.style.display = "none";
-        }
+        document.getElementById("back-btn").style.display = currentPath
+          ? "flex"
+          : "none";
 
         const titles = {
           my: "Мои файлы",
           shared: "Общий доступ",
           "all-works": "Работы студентов",
+          photos: "Фото",
+          storage: "Место",
         };
         const rootLink = document.createElement("span");
         rootLink.className = "breadcrumb-item";
@@ -793,12 +802,13 @@
       async function createFolder() {
         const folderName = prompt("Название папки:");
         if (!folderName || folderName.trim() === "") return;
+
         const safeName = encodeName(folderName.trim());
-        // Учитель не может создавать папки в чужой папке
+        let basePath = currentUser.id;
+        if (currentFolder === "shared") basePath = "shared";
         if (currentFolder === "all-works" || currentFolder === "teacher-view")
           return alert("Нельзя создавать папки здесь.");
 
-        const basePath = currentFolder === "shared" ? "shared" : currentUser.id;
         const fullPath = currentPath
           ? `${basePath}/${currentPath}/${safeName}`
           : `${basePath}/${safeName}`;
@@ -812,17 +822,21 @@
         else loadFiles();
       }
 
+      // ИСПРАВЛЕННОЕ УДАЛЕНИЕ
       async function deleteItem(itemPath, isFolder) {
-        if (currentFolder === "teacher-view")
+        if (currentFolder === "teacher-view" && userRole !== "teacher")
           return alert("Нельзя удалять чужие файлы!");
         if (!confirm("Удалить навсегда?")) return;
+
         const pathsToRemove = isFolder
           ? [`${itemPath}/.emptyFolderPlaceholder`]
           : [itemPath];
         const { error } = await supabaseClient.storage
           .from("disk")
           .remove(pathsToRemove);
-        if (error) alert("Ошибка: " + error.message);
+
+        if (error)
+          alert("Ошибка при удалении: " + translateError(error.message));
         else loadFiles();
       }
 
@@ -830,7 +844,7 @@
         const fileListEl = document.getElementById("file-list");
         fileListEl.innerHTML = '<p style="color:#888;">Загрузка...</p>';
 
-        // === БЛОК ДЛЯ УЧИТЕЛЯ: Показ всех папок ===
+        // === БЛОК ДЛЯ УЧИТЕЛЯ ===
         if (currentFolder === "all-works") {
           const { data, error } = await supabaseClient.storage
             .from("disk")
@@ -842,7 +856,6 @@
           }
 
           fileListEl.innerHTML = "";
-          // Оставляем только папки (у них нет id), исключаем shared
           const studentFolders = data.filter(
             (f) =>
               f.id === null &&
@@ -883,10 +896,10 @@
           return;
         }
 
-        // === ОБЫЧНЫЙ БЛОК (для папок) ===
+        // === ОБЫЧНЫЙ РЕЖИМ ===
         let basePath = currentUser.id;
         if (currentFolder === "shared") basePath = "shared";
-        if (currentFolder === "teacher-view") basePath = currentPath; // Учитель смотрит папку студента
+        if (currentFolder === "teacher-view") basePath = currentPath;
 
         const fullPath =
           currentFolder === "teacher-view" || !currentPath
@@ -905,12 +918,20 @@
         }
         fileListEl.innerHTML = "";
 
-        const folders = data.filter(
+        let folders = data.filter(
           (f) => f.id === null && f.name !== ".emptyFolderPlaceholder",
         );
-        const files = data.filter(
+        let files = data.filter(
           (f) => f.id !== null && f.name !== ".emptyFolderPlaceholder",
         );
+
+        // Фильтры для вкладок
+        if (currentFolder === "photos") {
+          folders = [];
+          files = files.filter((f) =>
+            f.name.match(/\.(jpg|jpeg|png|gif|webp)$/i),
+          );
+        }
 
         let totalBytes = 0;
         files.forEach((f) => {
@@ -949,8 +970,10 @@
             loadFiles();
           };
 
+          // Скрываем кнопку удаления, если учитель смотрит чужую папку
+          const showDelete = currentFolder !== "teacher-view";
           div.innerHTML = `
-                ${currentFolder !== "teacher-view" ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', true)">${deleteIcon}</button>` : ""}
+                ${showDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', true)">${deleteIcon}</button>` : ""}
                 <div class="grid-icon folder-icon"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
                 <span class="grid-name">${decodeName(folder.name)}</span>
             `;
@@ -974,8 +997,11 @@
             iconSvg =
               '<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
 
+          // Скрываем кнопку удаления в чужой папке
+          const showDelete = currentFolder !== "teacher-view";
+
           div.innerHTML = `
-                ${currentFolder !== "teacher-view" ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', false)">${deleteIcon}</button>` : ""}
+                ${showDelete ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', false)">${deleteIcon}</button>` : ""}
                 <div class="grid-icon file-icon"><svg viewBox="0 0 24 24">${iconSvg}</svg></div>
                 <span class="grid-name">${decodeFile(file.name)}</span>
             `;
@@ -986,7 +1012,7 @@
 
       async function uploadFile() {
         if (currentFolder === "teacher-view" || currentFolder === "all-works")
-          return alert("Нельзя загружать файлы в чужую папку!");
+          return alert("Нельзя загружать файлы сюда.");
 
         const fileInput = document.getElementById("file-input");
         if (!fileInput.files || fileInput.files.length === 0)

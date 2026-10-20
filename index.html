@@ -20,7 +20,6 @@
         overflow: hidden;
       }
 
-      /* Экран входа */
       #auth-screen {
         display: flex;
         justify-content: center;
@@ -99,7 +98,6 @@
         cursor: pointer;
       }
 
-      /* Экран диска */
       .hidden {
         display: none !important;
       }
@@ -108,7 +106,6 @@
         height: 100vh;
       }
 
-      /* Левая панель */
       .sidebar {
         width: 260px;
         background: #f7f7f7;
@@ -128,18 +125,6 @@
       .logo {
         font-size: 22px;
         font-weight: bold;
-      }
-      .search-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        width: 24px;
-        height: 24px;
-      }
-      .search-btn svg {
-        width: 100%;
-        height: 100%;
-        fill: #333;
       }
 
       .btn-sidebar {
@@ -171,7 +156,6 @@
         fill: currentColor;
       }
 
-      /* Меню */
       .nav-menu {
         display: flex;
         flex-direction: column;
@@ -211,27 +195,6 @@
         fill: #000;
       }
 
-      .family-btn {
-        justify-content: space-between;
-      }
-      .family-btn .left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .plus-icon {
-        background: #e0e0e0;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        color: #555;
-      }
-
-      /* Блок памяти */
       .storage-info {
         margin-top: auto;
         padding: 15px;
@@ -259,7 +222,6 @@
         transition: width 0.3s;
       }
 
-      /* Профиль */
       .user-profile {
         display: flex;
         align-items: center;
@@ -302,7 +264,6 @@
         text-align: left;
       }
 
-      /* Главная область */
       .main-area {
         flex: 1;
         display: flex;
@@ -369,7 +330,6 @@
         white-space: nowrap;
       }
 
-      /* Сетка файлов */
       .files-container {
         flex: 1;
         padding: 10px 40px;
@@ -437,8 +397,6 @@
         text-align: center;
         word-break: break-word;
       }
-
-      /* Красивые заглушки для разделов */
       .placeholder-view {
         display: flex;
         flex-direction: column;
@@ -447,6 +405,7 @@
         height: 60vh;
         color: #888;
         text-align: center;
+        grid-column: 1 / -1;
       }
       .placeholder-view svg {
         width: 80px;
@@ -462,7 +421,6 @@
     </style>
   </head>
   <body>
-    <!-- ЭКРАН ВХОДА -->
     <div id="auth-screen">
       <div class="login-box">
         <h1 id="auth-title">Вход в Мой Диск</h1>
@@ -495,19 +453,10 @@
       </div>
     </div>
 
-    <!-- ЭКРАН ДИСКА -->
     <div id="disk-screen" class="hidden">
-      <!-- Левая панель -->
       <div class="sidebar">
         <div class="sidebar-header">
           <div class="logo">Диск</div>
-          <button class="search-btn" onclick="searchFiles()">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-              />
-            </svg>
-          </button>
         </div>
 
         <input
@@ -535,39 +484,14 @@
           >Создать
         </button>
 
-        <div class="nav-menu">
-          <button id="nav-recent" class="nav-btn" onclick="switchTab('recent')">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"
-              /></svg
-            >Последние
-          </button>
-
+        <div class="nav-menu" id="main-nav-menu">
           <button id="nav-my" class="nav-btn active" onclick="switchTab('my')">
             <svg viewBox="0 0 24 24">
               <path
                 d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
               /></svg
-            >Файлы
+            >Мои файлы
           </button>
-
-          <button id="nav-photos" class="nav-btn" onclick="switchTab('photos')">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
-              /></svg
-            >Фото
-          </button>
-
-          <button id="nav-albums" class="nav-btn" onclick="switchTab('albums')">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"
-              /></svg
-            >Альбомы
-          </button>
-
           <button id="nav-shared" class="nav-btn" onclick="switchTab('shared')">
             <svg viewBox="0 0 24 24">
               <path
@@ -575,67 +499,11 @@
               /></svg
             >Общий доступ
           </button>
-
-          <button
-            id="nav-family"
-            class="nav-btn family-btn"
-            onclick="switchTab('family')"
-          >
-            <div class="left">
-              <svg viewBox="0 0 24 24">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg
-              >Семья
-            </div>
-            <div class="plus-icon">+</div>
-          </button>
-
-          <button
-            id="nav-downloads"
-            class="nav-btn"
-            onclick="switchTab('downloads')"
-          >
-            <svg viewBox="0 0 24 24">
-              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" /></svg
-            >Загрузки
-          </button>
-
-          <button id="nav-trash" class="nav-btn" onclick="switchTab('trash')">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-              /></svg
-            >Корзина
-          </button>
-
-          <button
-            id="nav-history"
-            class="nav-btn"
-            onclick="switchTab('history')"
-          >
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
-              /></svg
-            >История
-          </button>
-
-          <button
-            id="nav-storage"
-            class="nav-btn"
-            onclick="switchTab('storage')"
-          >
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"
-              /></svg
-            >Управление местом
-          </button>
         </div>
 
         <div class="storage-info">
           <div class="storage-text-row">
-            <span>Занято</span>
-            <span id="storage-text">0 МБ из 1 ГБ</span>
+            <span>Занято</span><span id="storage-text">0 МБ</span>
           </div>
           <div class="storage-bar">
             <div class="storage-fill" id="storage-fill"></div>
@@ -651,7 +519,6 @@
         </div>
       </div>
 
-      <!-- Основная зона -->
       <div class="main-area">
         <div class="top-bar">
           <div class="nav-zone">
@@ -685,9 +552,7 @@
     </div>
 
     <script>
-      // ==========================================
       // ВСТАВЬ СЮДА СВОИ КЛЮЧИ ИЗ SUPABASE!
-      // ==========================================
       const SUPABASE_URL = "https://jjjruysmbldsgclotcbd.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqanJ1eXNtYmxkc2djbG90Y2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MDA0NzksImV4cCI6MjEwNzk3NjQ3OX0.FFct-z_7ledyf3IwtDUjB-hIbvE9MN2zhuTJfmU8BIU";
@@ -697,10 +562,10 @@
         SUPABASE_ANON_KEY,
       );
       let currentUser = null;
+      let userRole = "student"; // По умолчанию все студенты
       let isLoginMode = true;
-      let currentFolder = "my"; // Текущий раздел
-      let currentPath = ""; // Вложенность папок
-      let allFilesData = []; // Кэш всех файлов для быстрой фильтрации
+      let currentFolder = "my";
+      let currentPath = "";
 
       const eyeOpen =
         '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
@@ -713,10 +578,13 @@
         if (msg.includes("row-level security policy"))
           return "Нет прав. Проверьте правила в базе.";
         if (msg.includes("Invalid key")) return "Недопустимое имя файла.";
+        if (msg.includes("already exists"))
+          return "Такая папка или файл уже существуют.";
+        if (msg.includes("User already registered"))
+          return "Этот email уже зарегистрирован. Нажмите «Войти».";
         return msg;
       }
 
-      // Шифрование
       function encodeName(str) {
         const b = new TextEncoder().encode(str);
         return btoa(Array.from(b, (x) => String.fromCodePoint(x)).join(""))
@@ -800,7 +668,7 @@
           if (error) msgEl.textContent = "Неверный email или пароль";
           else {
             currentUser = data.user;
-            showDisk();
+            await checkRoleAndShow();
           }
         } else {
           if (password !== document.getElementById("confirm-password").value) {
@@ -818,10 +686,41 @@
               await supabaseClient.auth.signInWithPassword({ email, password });
             if (loginData.user) {
               currentUser = loginData.user;
-              showDisk();
+              await checkRoleAndShow();
             }
           }
         }
+      }
+
+      async function checkRoleAndShow() {
+        // Проверяем роль пользователя
+        const { data } = await supabaseClient
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", currentUser.id)
+          .single();
+        userRole = data?.role || "student";
+
+        // Если это учитель, добавляем ему кнопку "Все работы"
+        if (
+          userRole === "teacher" &&
+          !document.getElementById("nav-all-works")
+        ) {
+          const btn = document.createElement("button");
+          btn.id = "nav-all-works";
+          btn.className = "nav-btn";
+          btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Все работы`;
+          btn.onclick = () => switchTab("all-works");
+          document.getElementById("main-nav-menu").appendChild(btn);
+        }
+
+        document.getElementById("auth-screen").classList.add("hidden");
+        document.getElementById("disk-screen").classList.remove("hidden");
+        document.getElementById("user-email").innerText = currentUser.email;
+        document.getElementById("user-avatar").innerText =
+          currentUser.email[0].toUpperCase();
+
+        switchTab("my");
       }
 
       async function logout() {
@@ -830,29 +729,18 @@
         currentPath = "";
         document.getElementById("auth-screen").classList.remove("hidden");
         document.getElementById("disk-screen").classList.add("hidden");
+        if (document.getElementById("nav-all-works"))
+          document.getElementById("nav-all-works").remove();
       }
 
-      function showDisk() {
-        document.getElementById("auth-screen").classList.add("hidden");
-        document.getElementById("disk-screen").classList.remove("hidden");
-        document.getElementById("user-email").innerText = currentUser.email;
-        document.getElementById("user-avatar").innerText =
-          currentUser.email[0].toUpperCase();
-        switchTab("my");
-      }
-
-      // Переключение разделов
       function switchTab(tab) {
         currentFolder = tab;
         currentPath = "";
-
-        // Подсветка меню
         document
           .querySelectorAll(".nav-btn")
           .forEach((btn) => btn.classList.remove("active"));
         if (document.getElementById("nav-" + tab))
           document.getElementById("nav-" + tab).classList.add("active");
-
         updateBreadcrumbs();
         loadFiles();
       }
@@ -860,7 +748,6 @@
       function updateBreadcrumbs() {
         const bc = document.getElementById("breadcrumbs");
         bc.innerHTML = "";
-
         const backBtn = document.getElementById("back-btn");
         if (currentPath) {
           backBtn.style.display = "flex";
@@ -869,18 +756,10 @@
         }
 
         const titles = {
-          my: "Файлы",
-          recent: "Последние",
-          photos: "Фото",
-          albums: "Альбомы",
+          my: "Мои файлы",
           shared: "Общий доступ",
-          family: "Семья",
-          downloads: "Загрузки",
-          trash: "Корзина",
-          history: "История",
-          storage: "Управление местом",
+          "all-works": "Работы студентов",
         };
-
         const rootLink = document.createElement("span");
         rootLink.className = "breadcrumb-item";
         rootLink.textContent = titles[currentFolder] || "Файлы";
@@ -911,39 +790,31 @@
         loadFiles();
       }
 
-      // Создание папок
       async function createFolder() {
         const folderName = prompt("Название папки:");
         if (!folderName || folderName.trim() === "") return;
-
-        const statusEl = document.getElementById("status");
-        statusEl.style.color = "#007bff";
-        statusEl.textContent = "Создание...";
-
         const safeName = encodeName(folderName.trim());
+        // Учитель не может создавать папки в чужой папке
+        if (currentFolder === "all-works" || currentFolder === "teacher-view")
+          return alert("Нельзя создавать папки здесь.");
+
         const basePath = currentFolder === "shared" ? "shared" : currentUser.id;
         const fullPath = currentPath
           ? `${basePath}/${currentPath}/${safeName}`
           : `${basePath}/${safeName}`;
-
         const { error } = await supabaseClient.storage
           .from("disk")
           .upload(`${fullPath}/.emptyFolderPlaceholder`, new Blob([""]), {
             upsert: true,
           });
 
-        if (error) {
-          statusEl.style.color = "#d93025";
-          statusEl.textContent = "Ошибка: " + translateError(error.message);
-        } else {
-          statusEl.style.color = "#008000";
-          statusEl.textContent = "Папка создана!";
-          loadFiles();
-          setTimeout(() => (statusEl.textContent = ""), 3000);
-        }
+        if (error) alert("Ошибка: " + translateError(error.message));
+        else loadFiles();
       }
 
       async function deleteItem(itemPath, isFolder) {
+        if (currentFolder === "teacher-view")
+          return alert("Нельзя удалять чужие файлы!");
         if (!confirm("Удалить навсегда?")) return;
         const pathsToRemove = isFolder
           ? [`${itemPath}/.emptyFolderPlaceholder`]
@@ -951,38 +822,76 @@
         const { error } = await supabaseClient.storage
           .from("disk")
           .remove(pathsToRemove);
-        if (error)
-          alert(
-            "Нельзя удалить папку с файлами! Сначала удалите файлы из неё.",
-          );
+        if (error) alert("Ошибка: " + error.message);
         else loadFiles();
       }
 
-      // Загрузка и фильтрация файлов
       async function loadFiles() {
         const fileListEl = document.getElementById("file-list");
         fileListEl.innerHTML = '<p style="color:#888;">Загрузка...</p>';
 
-        // Заглушки для разделов, которых нет в базе (они чисто визуальные)
-        if (["family", "trash", "history"].includes(currentFolder)) {
-          let msg =
-            currentFolder === "trash"
-              ? "Корзина пуста"
-              : currentFolder === "history"
-                ? "История действий пуста"
-                : "Пригласите близких";
-          let icon =
-            currentFolder === "trash"
-              ? deleteIcon
-              : '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>';
-          fileListEl.innerHTML = `<div style="grid-column: 1 / -1;" class="placeholder-view">${icon}<h2>${msg}</h2><p>Здесь пока ничего нет.</p></div>`;
-          updateStorageUI(0);
+        // === БЛОК ДЛЯ УЧИТЕЛЯ: Показ всех папок ===
+        if (currentFolder === "all-works") {
+          const { data, error } = await supabaseClient.storage
+            .from("disk")
+            .list("", { limit: 100 });
+          if (error) {
+            fileListEl.innerHTML =
+              '<p class="error">Ошибка: ' + error.message + "</p>";
+            return;
+          }
+
+          fileListEl.innerHTML = "";
+          // Оставляем только папки (у них нет id), исключаем shared
+          const studentFolders = data.filter(
+            (f) =>
+              f.id === null &&
+              f.name !== "shared" &&
+              f.name !== ".emptyFolderPlaceholder",
+          );
+
+          if (studentFolders.length === 0) {
+            fileListEl.innerHTML =
+              '<div class="placeholder-view"><h2>Студенты еще не загрузили работы</h2></div>';
+            return;
+          }
+
+          const { data: profiles } = await supabaseClient
+            .from("profiles")
+            .select("*");
+
+          for (const folder of studentFolders) {
+            const studentProfile = profiles.find((p) => p.id === folder.name);
+            const displayName = studentProfile
+              ? studentProfile.email
+              : "Студент";
+
+            const div = document.createElement("div");
+            div.className = "grid-item";
+            div.onclick = () => {
+              currentFolder = "teacher-view";
+              currentPath = folder.name;
+              updateBreadcrumbs();
+              loadFiles();
+            };
+            div.innerHTML = `
+                    <div class="grid-icon folder-icon"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
+                    <span class="grid-name">${displayName}</span>
+                `;
+            fileListEl.appendChild(div);
+          }
           return;
         }
 
-        // Получаем данные из Supabase
-        const basePath = currentFolder === "shared" ? "shared" : currentUser.id;
-        const fullPath = currentPath ? `${basePath}/${currentPath}` : basePath;
+        // === ОБЫЧНЫЙ БЛОК (для папок) ===
+        let basePath = currentUser.id;
+        if (currentFolder === "shared") basePath = "shared";
+        if (currentFolder === "teacher-view") basePath = currentPath; // Учитель смотрит папку студента
+
+        const fullPath =
+          currentFolder === "teacher-view" || !currentPath
+            ? basePath
+            : `${basePath}/${currentPath}`;
         const { data, error } = await supabaseClient.storage
           .from("disk")
           .list(fullPath);
@@ -996,88 +905,52 @@
         }
         fileListEl.innerHTML = "";
 
-        let folders = data.filter(
+        const folders = data.filter(
           (f) => f.id === null && f.name !== ".emptyFolderPlaceholder",
         );
-        let files = data.filter(
+        const files = data.filter(
           (f) => f.id !== null && f.name !== ".emptyFolderPlaceholder",
         );
 
-        // Логика фильтров для разных разделов
-        if (currentFolder === "photos") {
-          folders = []; // В фото только файлы
-          files = files.filter((f) =>
-            f.name.match(/\.(jpg|jpeg|png|gif|webp)$/i),
-          );
-        } else if (currentFolder === "albums") {
-          files = []; // В альбомах только папки
-        } else if (
-          currentFolder === "recent" ||
-          currentFolder === "downloads"
-        ) {
-          // Просто показываем все файлы (в реальности сортировали бы по дате)
-        }
-
-        if (currentFolder === "storage") {
-          // Красивая статистика для раздела "Управление местом"
-          let photoSize = 0,
-            videoSize = 0,
-            docSize = 0;
-          files.forEach((f) => {
-            if (f.name.match(/\.(jpg|jpeg|png|gif)$/i))
-              photoSize += f.metadata.size;
-            else if (f.name.match(/\.(mp4|mov|avi)$/i))
-              videoSize += f.metadata.size;
-            else docSize += f.metadata.size;
-          });
-          fileListEl.innerHTML = `
-                <div style="grid-column: 1 / -1; padding: 20px; background: #fff; border-radius: 12px; border: 1px solid #eaeaea; width: 100%; max-width: 600px;">
-                    <h2 style="margin-bottom: 20px; color:#333;">Хранилище</h2>
-                    <div style="margin-bottom: 15px;">
-                        <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;"><span>🖼️ Фото</span> <span>${(photoSize / 1024 / 1024).toFixed(1)} МБ</span></div>
-                        <div class="storage-bar" style="height:8px;"><div class="storage-fill" style="width: ${Math.min((photoSize / 1024 / 1024 / 1000) * 100, 100)}%; background:#007bff;"></div></div>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;"><span>🎬 Видео</span> <span>${(videoSize / 1024 / 1024).toFixed(1)} МБ</span></div>
-                        <div class="storage-bar" style="height:8px;"><div class="storage-fill" style="width: ${Math.min((videoSize / 1024 / 1024 / 1000) * 100, 100)}%; background:#d93025;"></div></div>
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:5px;"><span>📄 Документы</span> <span>${(docSize / 1024 / 1024).toFixed(1)} МБ</span></div>
-                        <div class="storage-bar" style="height:8px;"><div class="storage-fill" style="width: ${Math.min((docSize / 1024 / 1024 / 1000) * 100, 100)}%; background:#888;"></div></div>
-                    </div>
-                </div>
-            `;
-          updateStorageUI(photoSize + videoSize + docSize);
-          return;
-        }
-
-        // Подсчет памяти
         let totalBytes = 0;
         files.forEach((f) => {
           totalBytes += f.metadata.size;
         });
-        updateStorageUI(totalBytes);
+        const mbSize = (totalBytes / (1024 * 1024)).toFixed(1);
+        document.getElementById("storage-text").innerText =
+          `${mbSize} МБ из 1 ГБ`;
+        document.getElementById("storage-fill").style.width =
+          Math.min((mbSize / 1000) * 100, 100) + "%";
 
         if (folders.length === 0 && files.length === 0) {
-          fileListEl.innerHTML = `<div style="grid-column: 1 / -1;" class="placeholder-view"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg><h2>Здесь пока пусто</h2><p>Загрузите файл или создайте папку.</p></div>`;
+          fileListEl.innerHTML =
+            '<div class="placeholder-view"><h2>Здесь пока пусто</h2></div>';
           return;
         }
 
-        // Отрисовка
         folders.forEach((folder) => {
           const div = document.createElement("div");
           div.className = "grid-item";
           const currentFolderPath = currentPath
             ? `${currentPath}/${folder.name}`
             : folder.name;
-          const fullItemPath = `${basePath}/${currentFolderPath}`;
+          const fullItemPath =
+            currentFolder === "teacher-view"
+              ? `${basePath}/${folder.name}`
+              : `${basePath}/${currentFolderPath}`;
+
           div.onclick = () => {
-            currentPath = currentFolderPath;
+            if (currentFolder === "teacher-view") {
+              currentPath = `${currentPath}/${folder.name}`;
+            } else {
+              currentPath = currentFolderPath;
+            }
             updateBreadcrumbs();
             loadFiles();
           };
+
           div.innerHTML = `
-                <button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', true)">${deleteIcon}</button>
+                ${currentFolder !== "teacher-view" ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', true)">${deleteIcon}</button>` : ""}
                 <div class="grid-icon folder-icon"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></div>
                 <span class="grid-name">${decodeName(folder.name)}</span>
             `;
@@ -1102,7 +975,7 @@
               '<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
 
           div.innerHTML = `
-                <button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', false)">${deleteIcon}</button>
+                ${currentFolder !== "teacher-view" ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${fullItemPath}', false)">${deleteIcon}</button>` : ""}
                 <div class="grid-icon file-icon"><svg viewBox="0 0 24 24">${iconSvg}</svg></div>
                 <span class="grid-name">${decodeFile(file.name)}</span>
             `;
@@ -1111,59 +984,16 @@
         });
       }
 
-      function updateStorageUI(totalBytes) {
-        const mbSize = (totalBytes / (1024 * 1024)).toFixed(1);
-        document.getElementById("storage-text").innerText =
-          `${mbSize} МБ из 1 ГБ`;
-        document.getElementById("storage-fill").style.width =
-          Math.min((mbSize / 1000) * 100, 100) + "%";
-      }
-
-      // Поиск (Лупа)
-      function searchFiles() {
-        const query = prompt("Что ищем?");
-        if (!query) return;
-        const fileListEl = document.getElementById("file-list");
-        fileListEl.innerHTML = `<div style="grid-column: 1 / -1; margin-bottom: 20px;"><b>Результаты поиска по запросу: "${query}"</b></div>`;
-
-        // Очень простой поиск по текущей папке
-        const basePath = currentFolder === "shared" ? "shared" : currentUser.id;
-        supabaseClient.storage
-          .from("disk")
-          .list(basePath)
-          .then(({ data }) => {
-            const found = data.filter((f) =>
-              decodeFile(f.name).toLowerCase().includes(query.toLowerCase()),
-            );
-            if (found.length === 0) {
-              fileListEl.innerHTML += `<div style="grid-column: 1 / -1;" class="placeholder-view"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><h2>Ничего не найдено</h2></div>`;
-              return;
-            }
-            found.forEach((file) => {
-              const div = document.createElement("div");
-              div.className = "grid-item";
-              const { data: urlData } = supabaseClient.storage
-                .from("disk")
-                .getPublicUrl(`${basePath}/${file.name}`);
-              div.innerHTML = `
-                    <div class="grid-icon file-icon"><svg viewBox="0 0 24 24"><path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/></svg></div>
-                    <span class="grid-name">${decodeFile(file.name)}</span>
-                `;
-              div.onclick = () => window.open(urlData.publicUrl, "_blank");
-              fileListEl.appendChild(div);
-            });
-          });
-      }
-
       async function uploadFile() {
+        if (currentFolder === "teacher-view" || currentFolder === "all-works")
+          return alert("Нельзя загружать файлы в чужую папку!");
+
         const fileInput = document.getElementById("file-input");
-        const statusEl = document.getElementById("status");
-        if (!fileInput.files || fileInput.files.length === 0) {
-          statusEl.style.color = "#d93025";
-          statusEl.textContent = "Выберите файл!";
-          return;
-        }
+        if (!fileInput.files || fileInput.files.length === 0)
+          return alert("Выберите файл!");
+
         const file = fileInput.files[0];
+        const statusEl = document.getElementById("status");
         statusEl.style.color = "#007bff";
         statusEl.textContent = "Загрузка...";
 
@@ -1192,7 +1022,7 @@
       supabaseClient.auth.getSession().then(({ data: { session } }) => {
         if (session) {
           currentUser = session.user;
-          showDisk();
+          checkRoleAndShow();
         }
       });
     </script>
